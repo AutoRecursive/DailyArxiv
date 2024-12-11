@@ -1,6 +1,8 @@
 # ArXiv Paper Browser
 
-A modern web application for browsing recent ArXiv papers with a beautiful card-based interface. Built with Vue.js and Python FastAPI.
+A modern ArXiv paper browser that makes academic surfing enjoyable. Features a beautiful card-based interface, smart category filtering, and real-time updates. Your daily companion for discovering cutting-edge research papers in computer science and beyond.
+
+Built with Vue.js and Python FastAPI.
 
 ![Screenshot of the application](screenshot.png)
 
