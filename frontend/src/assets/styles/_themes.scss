@@ -1,0 +1,63 @@
+@use 'sass:map';
+@use 'variables' as *;
+
+// 声明全局变量
+$theme-map: null !default;
+
+// 主题配置
+$themes: (
+  cyberpunk: (  // 赛博朋克主题
+    primary-color: #ff2a6d,     // 霓虹粉红
+    secondary-color: #05d9e8,   // 霓虹青
+    background-color: #0d0221,  // 深紫黑色
+    card-background: #1a1133,   // 深紫色
+    text-primary: #ffffff,      // 白色
+    text-secondary: #05d9e8,    // 霓虹青
+    border-color: #ff2a6d,      // 霓虹粉红
+    shadow-color: rgba(255, 42, 109, 0.3),  // 霓虹粉红阴影
+    category-bg: rgba(5, 217, 232, 0.15),   // 半透明霓虹青
+    category-text: #05d9e8,     // 霓虹青
+    accent-color: #01ff95       // 霓虹绿（用于强调）
+  ),
+  light: (
+    primary-color: #b31b1b,     // arXiv 红色
+    secondary-color: #2c3e50,   // 深灰色
+    background-color: #f5f6fa,
+    card-background: #ffffff,
+    text-primary: #2c3e50,
+    text-secondary: #7f8c8d,
+    border-color: #e1e1e1,
+    shadow-color: rgba(0, 0, 0, 0.1),
+    category-bg: #f8f9fa,       // 浅灰色背景
+    category-text: #b31b1b,     // arXiv 红色
+    accent-color: #2c3e50       // 深灰色
+  ),
+  dark: (
+    primary-color: #b31b1b,     // arXiv 红色
+    secondary-color: #ffffff,    // 白色
+    background-color: #1a1a1a,
+    card-background: #2d2d2d,
+    text-primary: #ffffff,
+    text-secondary: #b3b3b3,
+    border-color: #404040,
+    shadow-color: rgba(0, 0, 0, 0.3),
+    category-bg: rgba(255, 255, 255, 0.1),  // 半透明白色
+    category-text: #ffffff,     // 白色
+    accent-color: #b3b3b3       // 灰色
+  )
+);
+
+// 主题混入
+@mixin themed() {
+  @each $theme, $map in $themes {
+    .theme-#{$theme} & {
+      $theme-map: $map !global;
+      @content;
+    }
+  }
+}
+
+// 获取主题变量
+@function t($key) {
+  @return map.get($theme-map, $key);
+} 

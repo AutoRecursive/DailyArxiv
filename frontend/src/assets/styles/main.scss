@@ -1,0 +1,30 @@
+@use 'index' as *;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  @include themed() {
+    background-color: t('background-color');
+    color: t('text-primary');
+  }
+  line-height: 1.6;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 $spacing-unit * 2;
+}
+
+.paper-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax($card-width, 1fr));
+  gap: $card-gap;
+  padding: $spacing-unit * 3;
+} 
