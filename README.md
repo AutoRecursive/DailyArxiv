@@ -38,4 +38,78 @@ A modern web application for browsing recent ArXiv papers with a beautiful card-
 
 ### Installation
 
-1. Clone the repository 
+1. Clone the repository
+```bash
+git clone https://github.com/yourusername/arxiv-paper-browser.git
+cd arxiv-paper-browser
+```
+2. Set up the backend
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate # On Windows: .\venv\Scripts\activate
+pip install -r requirements.txt
+```
+3. Set up the frontend
+```bash
+cd frontend
+npm install
+```
+### Running the Application
+
+You can run both frontend and backend with a single command:
+```bash
+python start.py
+```
+Or run them separately:
+
+Backend:
+```bash
+cd backend
+python -m main
+```
+Frontend:
+```bash
+cd frontend
+npm run dev
+```
+The application will be available at:
+- Frontend: http://localhost:5173
+- Backend API: http://localhost:8000
+- API Documentation: http://localhost:8000/docs
+
+## Project Structure
+```
+.
+├── backend/
+│ ├── database/ # Database models and operations
+│ ├── scraper/ # ArXiv API integration
+│ ├── tests/ # Backend tests
+│ └── main.py # FastAPI application
+├── frontend/
+│ ├── public/ # Static assets
+│ └── src/
+│ ├── assets/ # Styles and images
+│ ├── components/ # Vue components
+│ ├── stores/ # Pinia stores
+│ └── views/ # Page components
+└── start.py # Development startup script
+
+```
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- [ArXiv API](https://arxiv.org/help/api/index) for providing the paper data
+- [Vue.js](https://vuejs.org/) for the excellent frontend framework
+- [FastAPI](https://fastapi.tiangolo.com/) for the powerful backend framework
