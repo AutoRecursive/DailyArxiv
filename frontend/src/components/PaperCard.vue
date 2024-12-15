@@ -1,7 +1,15 @@
 <template>
   <div class="paper-card" @click="navigateToPaper">
-    <div class="paper-card__image">
-      <img :src="getImageForCategory(paper.categories)" :alt="paper.title">
+    <div class="paper-card__image" @contextmenu.prevent="navigateToPaper">
+      <img :src="getImageForCategory(paper.categories)" :alt="paper.title" @contextmenu.prevent>
+      <button 
+        class="read-status-btn"
+        :class="{ 'is-read': isRead }"
+        @click.stop="toggleReadStatus"
+        :title="isRead ? 'Mark as unread' : 'Mark as read'"
+      >
+        <span class="icon">{{ isRead ? '✓' : '○' }}</span>
+      </button>
     </div>
     <div class="paper-card__content">
       <div class="paper-card__categories">
@@ -37,6 +45,7 @@
 <script setup>
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
+import { useReadStatusStore } from '../stores/readStatus';
 
 const props = defineProps({
   paper: {
@@ -46,6 +55,8 @@ const props = defineProps({
 });
 
 const router = useRouter();
+const readStatusStore = useReadStatusStore();
+const isRead = computed(() => readStatusStore.isRead(props.paper.id));
 
 const mainCategories = computed(() => {
   return props.paper.categories.split(', ').slice(0, 2);
@@ -80,7 +91,12 @@ function getArxivUrl(paperId) {
   return `https://arxiv.org/abs/${paperId}`;
 }
 
+function toggleReadStatus() {
+  readStatusStore.toggleRead(props.paper.id);
+}
+
 function navigateToPaper() {
+  readStatusStore.markAsRead(props.paper.id);
   window.open(getArxivUrl(props.paper.id), '_blank');
 }
 </script>
@@ -96,6 +112,9 @@ function navigateToPaper() {
   overflow: hidden;
   transition: transform 0.2s, box-shadow 0.2s;
   cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  height: 420px;
 
   &:hover {
     transform: translateY(-4px);
@@ -106,8 +125,9 @@ function navigateToPaper() {
 
   &__image {
     width: 100%;
-    height: 200px;
+    height: 160px;
     overflow: hidden;
+    position: relative;
 
     img {
       width: 100%;
@@ -117,19 +137,27 @@ function navigateToPaper() {
   }
 
   &__content {
-    padding: $spacing-unit * 2;
+    padding: $spacing-unit * 1.5;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
   }
 
   &__categories {
     margin-bottom: $spacing-unit;
     display: flex;
-    gap: $spacing-unit;
+    flex-wrap: wrap;
+    gap: $spacing-unit * 0.5;
   }
 
   &__title {
-    font-size: 1.1rem;
+    font-size: 1rem;
     margin-bottom: $spacing-unit;
     line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
     @include themed() {
       color: t('text-primary');
     }
@@ -137,7 +165,12 @@ function navigateToPaper() {
 
   &__abstract {
     font-size: 0.9rem;
-    margin-bottom: $spacing-unit * 2;
+    margin-bottom: $spacing-unit;
+    flex: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
     @include themed() {
       color: t('text-secondary');
     }
@@ -147,7 +180,8 @@ function navigateToPaper() {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+    margin-top: auto;
     @include themed() {
       color: t('text-secondary');
     }
@@ -163,6 +197,7 @@ function navigateToPaper() {
     padding: 4px 8px;
     border-radius: 4px;
     transition: background-color 0.2s;
+    font-size: 0.85rem;
     @include themed() {
       color: t('primary-color');
       
@@ -174,9 +209,9 @@ function navigateToPaper() {
 }
 
 .category-tag {
-  padding: 4px 8px;
+  padding: 2px 6px;
   border-radius: 4px;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   transition: all 0.2s;
   @include themed() {
     background: t('category-bg');
@@ -186,6 +221,60 @@ function navigateToPaper() {
     &:hover {
       background: t('category-text');
       color: t('card-background');
+    }
+  }
+}
+
+.read-status-btn {
+  position: absolute;
+  top: $spacing-unit;
+  right: $spacing-unit;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  opacity: 0;
+  z-index: 1;
+  
+  @include themed() {
+    background: t('card-background');
+    color: t('text-secondary');
+    box-shadow: 0 2px 4px t('shadow-color');
+    
+    &:hover {
+      background: t('primary-color');
+      color: t('card-background');
+      transform: scale(1.1);
+    }
+    
+    &.is-read {
+      opacity: 1;
+      background: t('primary-color');
+      color: t('card-background');
+    }
+  }
+  
+  .icon {
+    font-size: 1rem;
+    line-height: 1;
+  }
+}
+
+.paper-card:hover .read-status-btn {
+  opacity: 1;
+}
+
+.paper-card.is-read {
+  @include themed() {
+    opacity: 0.75;
+    
+    &:hover {
+      opacity: 0.9;
     }
   }
 }

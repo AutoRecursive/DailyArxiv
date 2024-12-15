@@ -40,20 +40,24 @@ const error = computed(() => store.error);
 
 .paper-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax($card-width, 1fr));
-  gap: $card-gap;
-  padding: $spacing-unit * 3;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: $spacing-unit * 2;
+  padding: $spacing-unit * 2;
 }
 
 .loading, .error, .no-papers {
   grid-column: 1 / -1;
   text-align: center;
   padding: $spacing-unit * 4;
-  background: white;
+  @include themed() {
+    background: t('card-background');
+  }
   border-radius: $card-border-radius;
 }
 
 .error {
-  color: red;
+  @include themed() {
+    color: t('primary-color');
+  }
 }
 </style> 

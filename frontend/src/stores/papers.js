@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import axios from 'axios';
+import { useReadStatusStore } from './readStatus';
 
 const API_BASE_URL = 'http://localhost:8000';
 
@@ -8,16 +9,32 @@ export const usePapersStore = defineStore('papers', {
     papers: [],
     categories: [],
     selectedCategory: null,
+    readFilter: 'all', // 'all' | 'read' | 'unread'
     isLoading: false,
     error: null
   }),
 
   getters: {
     filteredPapers: (state) => {
-      if (!state.selectedCategory) return state.papers;
-      return state.papers.filter(paper => 
-        paper.categories.includes(state.selectedCategory)
-      );
+      let filtered = state.papers;
+      
+      // 分类过滤
+      if (state.selectedCategory) {
+        filtered = filtered.filter(paper => 
+          paper.categories.includes(state.selectedCategory)
+        );
+      }
+      
+      // 阅读状态过滤
+      if (state.readFilter !== 'all') {
+        const readStatusStore = useReadStatusStore();
+        filtered = filtered.filter(paper => {
+          const isRead = readStatusStore.isRead(paper.id);
+          return state.readFilter === 'read' ? isRead : !isRead;
+        });
+      }
+      
+      return filtered;
     }
   },
 
@@ -63,6 +80,10 @@ export const usePapersStore = defineStore('papers', {
 
     setSelectedCategory(category) {
       this.selectedCategory = category;
+    },
+
+    setReadFilter(filter) {
+      this.readFilter = filter;
     }
   }
 }); 
