@@ -1,5 +1,14 @@
 {
+  "scripts": {
+    "dev": "cd daily-arxiv && npm run dev",
+    "build": "cd daily-arxiv && npm run build",
+    "tauri": "tauri"
+  },
   "dependencies": {
+    "@tauri-apps/api": "^2.1.1",
     "jslint": "^0.12.1"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^1.5.9"
   }
 }

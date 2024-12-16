@@ -1,80 +1,73 @@
-# ArXiv Paper Browser
+# ArXiv Browser
 
-A modern ArXiv paper browser that makes academic surfing enjoyable. Features a beautiful card-based interface, smart category filtering, and real-time updates. Your daily companion for discovering cutting-edge research papers in computer science and beyond.
-
-Built with Vue.js and Python FastAPI.
-
-![Screenshot of the application](screenshot.png)
+A modern ArXiv paper browser built with Tauri + Vue3 + Python, featuring a clean interface and convenient paper management functionality.
 
 ## Features
 
-- 📱 Responsive card-based interface
-- 🎨 Three beautiful themes (Cyberpunk, Light, Dark)
-- 🔍 Filter papers by categories
-- 🔄 Real-time paper updates
-- 📊 Category statistics
-- 🖼 Custom images for popular categories
-- 🚀 Fast and efficient
+- 📱 Modern responsive interface
+- 🔍 Paper category filtering
+- 📖 Reading status tracking
+- 🔗 Quick paper link opening
+- 🌙 Light/Dark theme switching
 
 ## Tech Stack
 
-### Frontend
-- Vue 3 with Composition API
-- Vite for build tooling
-- Pinia for state management
-- SCSS with theme support
-- Axios for API calls
+- Frontend: Vue 3 + Vite + Pinia
+- Backend: Python + FastAPI
+- Desktop: Tauri
+- Styling: SCSS
 
-### Backend
-- FastAPI
-- SQLite database
-- ArXiv API integration
-- Background scheduling
-
-## Getting Started
+## Development Setup
 
 ### Prerequisites
-- Python 3.8+
-- Node.js 16+
-- npm or yarn
 
-### Installation
+- Node.js (>= 16)
+- Python 3.8+
+- Rust
+
+### Installation Steps
 
 1. Clone the repository
 ```bash
 git clone https://github.com/yourusername/arxiv-paper-browser.git
 cd arxiv-paper-browser
 ```
-2. Set up the backend
+
+2. Setup backend
 ```bash
 cd backend
 python -m venv venv
 source venv/bin/activate # On Windows: .\venv\Scripts\activate
 pip install -r requirements.txt
 ```
-3. Set up the frontend
+
+3. Setup frontend
 ```bash
-cd frontend
+cd daily-arxiv
 npm install
 ```
+
 ### Running the Application
 
-You can run both frontend and backend with a single command:
+You can run the application in development mode:
 ```bash
-python start.py
+npm run tauri dev
 ```
-Or run them separately:
+
+Or run frontend and backend separately:
 
 Backend:
 ```bash
 cd backend
 python -m main
 ```
+
 Frontend:
 ```bash
-cd frontend
+cd daily-arxiv
 npm run dev
 ```
+
 The application will be available at:
 - Frontend: http://localhost:5173
 - Backend API: http://localhost:8000
@@ -84,20 +77,20 @@ The application will be available at:
 ```
 .
 ├── backend/
-│ ├── database/ # Database models and operations
-│ ├── scraper/ # ArXiv API integration
-│ ├── tests/ # Backend tests
-│ └── main.py # FastAPI application
-├── frontend/
-│ ├── public/ # Static assets
-│ └── src/
-│ ├── assets/ # Styles and images
-│ ├── components/ # Vue components
-│ ├── stores/ # Pinia stores
-│ └── views/ # Page components
-└── start.py # Development startup script
-
+│   ├── database/     # Database models and operations
+│   ├── scraper/      # ArXiv API integration
+│   ├── tests/        # Backend tests
+│   └── main.py       # FastAPI application
+├── daily-arxiv/      # Frontend application
+│   ├── public/       # Static assets
+│   └── src/
+│       ├── assets/   # Styles and images
+│       ├── components/# Vue components
+│       ├── stores/   # Pinia stores
+│       └── views/    # Page components
+└── src-tauri/        # Tauri desktop application
 ```
+
 ## Contributing
 
 1. Fork the repository
@@ -115,3 +108,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [ArXiv API](https://arxiv.org/help/api/index) for providing the paper data
 - [Vue.js](https://vuejs.org/) for the excellent frontend framework
 - [FastAPI](https://fastapi.tiangolo.com/) for the powerful backend framework
+- [Tauri](https://tauri.app/) for the desktop application framework

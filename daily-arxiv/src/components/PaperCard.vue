@@ -1,5 +1,5 @@
 <template>
-  <div class="paper-card" @click="navigateToPaper">
+  <div class="paper-card" @click="openPaper">
     <div class="paper-card__image" @contextmenu.prevent="navigateToPaper">
       <img :src="getImageForCategory(paper.categories)" :alt="paper.title" @contextmenu.prevent>
       <button 
@@ -24,28 +24,32 @@
       <div class="paper-card__footer">
         <span class="paper-card__date">{{ formatDate(paper.published_date) }}</span>
         <div class="paper-card__links">
-          <a :href="getArxivUrl(paper.id)" 
-             target="_blank" 
-             class="paper-card__link"
-             @click.stop>
+          <a 
+            @click="openArxiv"
+            class="paper-card__link"
+          >
             arXiv
           </a>
-          <a :href="paper.pdf_url" 
-             target="_blank" 
-             class="paper-card__link"
-             @click.stop>
+          <a 
+            @click="openPdf"
+            class="paper-card__link"
+          >
             PDF
           </a>
         </div>
       </div>
     </div>
+    <div class="copy-notification" :class="{ show: showCopyNotification }">
+      Link copied to clipboard!
+    </div>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useReadStatusStore } from '../stores/readStatus';
+import { invoke } from '@tauri-apps/api'
 
 const props = defineProps({
   paper: {
@@ -87,17 +91,51 @@ function getImageForCategory(categories) {
   return CATEGORY_IMAGES[mainCategory] || DEFAULT_IMAGE;
 }
 
-function getArxivUrl(paperId) {
-  return `https://arxiv.org/abs/${paperId}`;
+function getArxivUrl(id) {
+  return `https://arxiv.org/abs/${id}`;
 }
 
 function toggleReadStatus() {
   readStatusStore.toggleRead(props.paper.id);
 }
 
-function navigateToPaper() {
+const showCopyNotification = ref(false);
+
+function copyToClipboard(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    showCopyNotification.value = true;
+    setTimeout(() => {
+      showCopyNotification.value = false;
+    }, 2000);
+  }).catch(err => {
+    console.warn('Failed to copy:', err);
+  });
+}
+
+function navigateToPaper(event) {
   readStatusStore.markAsRead(props.paper.id);
+  const url = getArxivUrl(props.paper.id);
+  copyToClipboard(url);
+  window.open(url, '_blank');
+}
+
+function openPdf(event) {
+  event.stopPropagation();
+  window.open(props.paper.pdf_url, '_blank');
+}
+
+function openArxiv(event) {
+  event.stopPropagation();
   window.open(getArxivUrl(props.paper.id), '_blank');
+}
+
+async function openPaper() {
+  const arxivUrl = `https://arxiv.org/abs/${props.paper.id}`
+  try {
+    await invoke('open_url', { url: arxivUrl })
+  } catch (error) {
+    console.error('Failed to open URL:', error)
+  }
 }
 </script>
 
@@ -276,6 +314,26 @@ function navigateToPaper() {
     &:hover {
       opacity: 0.9;
     }
+  }
+}
+
+.copy-notification {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  opacity: 0;
+  transition: all 0.3s ease;
+  z-index: 1000;
+
+  &.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
   }
 }
 </style> 

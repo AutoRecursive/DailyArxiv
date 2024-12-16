@@ -1,0 +1,71 @@
+{
+    "$schema": "../node_modules/@tauri-apps/cli/schema.json",
+    "build": {
+      "beforeBuildCommand": "npm run build",
+      "beforeDevCommand": "npm run dev",
+      "devPath": "http://localhost:5173",
+      "distDir": "../daily-arxiv/dist"
+    },
+    "package": {
+      "productName": "ArXiv Browser",
+      "version": "0.1.0"
+    },
+    "tauri": {
+      "allowlist": {
+        "all": false,
+        "http": {
+          "all": true,
+          "request": true,
+          "scope": ["http://localhost:8000/*", "http://export.arxiv.org/*"]
+        },
+        "shell": {
+          "all": false,
+          "open": true
+        }
+      },
+      "bundle": {
+        "active": true,
+        "category": "DeveloperTool",
+        "copyright": "",
+        "deb": {
+          "depends": ["python3", "python3-pip"]
+        },
+        "externalBin": [],
+        "icon": [
+          "icons/icon.png"
+        ],
+        "identifier": "com.arxiv.browser",
+        "longDescription": "",
+        "macOS": {
+          "entitlements": null,
+          "exceptionDomain": "",
+          "frameworks": [],
+          "providerShortName": null,
+          "signingIdentity": null
+        },
+        "resources": ["../backend"],
+        "shortDescription": "",
+        "targets": "all",
+        "windows": {
+          "certificateThumbprint": null,
+          "digestAlgorithm": "sha256",
+          "timestampUrl": ""
+        }
+      },
+      "security": {
+        "csp": "default-src 'self'; connect-src 'self' http://localhost:8000 http://export.arxiv.org"
+      },
+      "updater": {
+        "active": false
+      },
+      "windows": [
+        {
+          "fullscreen": false,
+          "height": 800,
+          "resizable": true,
+          "title": "ArXiv Browser",
+          "width": 1200
+        }
+      ]
+    }
+  }

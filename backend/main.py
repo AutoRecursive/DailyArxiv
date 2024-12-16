@@ -165,4 +165,4 @@ async def trigger_update():
 update_papers()
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000) 
+    uvicorn.run("backend.main:app", host="0.0.0.0", port=8001, reload=True) 
