@@ -4,6 +4,7 @@ import os
 import signal
 import platform
 import time
+import socket
 
 
 def is_windows():
@@ -28,7 +29,7 @@ def start_backend():
   # 获取项目根目录的绝对路径
   root_dir = os.path.dirname(os.path.abspath(__file__))
   backend_dir = os.path.join(root_dir, "backend")
-  venv_dir = os.path.join(backend_dir, "venv")
+  venv_dir = os.path.join(backend_dir, "../../venv")
 
   # 创建并激活虚拟环境
   if not os.path.exists(venv_dir):
@@ -59,9 +60,10 @@ def start_backend():
   env["PYTHONPATH"] = root_dir
 
   print("启动后端服务...")
-  # 启动后端，并捕获输出
+  # 启动后端，并捕获输出，添加 --host 0.0.0.0 参数使其可以远程访问
   backend_process = subprocess.Popen(
-      [venv_python, "-m", "backend.main"],
+      [venv_python, "-m", "uvicorn", "backend.main:app",
+       "--host", "0.0.0.0", "--port", "8000"],
       env=env,
       cwd=root_dir,
       stdout=subprocess.PIPE,
@@ -96,16 +98,44 @@ def start_frontend():
 
   os.chdir(frontend_dir)
 
+  # 获取本机IP地址
+  hostname = socket.gethostname()
+  local_ip = socket.gethostbyname(hostname)
+
+  # 设置环境变量
+  env = os.environ.copy()
+  env["VITE_API_BASE_URL"] = f"http://{local_ip}:8000"  # 设置后端API地址
+
   # 安装依赖
   print("安装前端依赖...")
   subprocess.run(["npm", "install"], check=True)
 
   print("启动前端服务...")
-  # 启动开发服务器
+  # 启动开发服务器，添加 --host 0.0.0.0 使其可以远程访问
   frontend_process = subprocess.Popen(
-      ["npm", "run", "dev"],
-      cwd=frontend_dir
+      ["npm", "run", "dev", "--", "--host", "0.0.0.0"],
+      cwd=frontend_dir,
+      env=env,
+      stdout=subprocess.PIPE,
+      stderr=subprocess.PIPE,
+      universal_newlines=True
   )
+
+  # 启动一个线程来读取和打印前端输出
+  def print_frontend_output(process):
+    while True:
+      output = process.stdout.readline()
+      if output:
+        print("[Frontend]", output.strip())
+      error = process.stderr.readline()
+      if error:
+        print("[Frontend Error]", error.strip(), file=sys.stderr)
+      if output == '' and error == '' and process.poll() is not None:
+        break
+
+  import threading
+  threading.Thread(target=print_frontend_output, args=(
+    frontend_process,), daemon=True).start()
 
   return frontend_process
 
@@ -115,14 +145,18 @@ def main():
   try:
     check_dependencies()
 
+    # 获取本机IP地址
+    hostname = socket.gethostname()
+    local_ip = socket.gethostbyname(hostname)
+
     # 启动服务
     backend_process = start_backend()
     time.sleep(2)  # 等待后端启动
     frontend_process = start_frontend()
 
     print("\n所有服务已启动!")
-    print("前端地址: http://localhost:5173")
-    print("后端地址: http://localhost:8000")
+    print(f"前端地址: http://{local_ip}:5173")
+    print(f"后端地址: http://{local_ip}:8000")
     print("按 Ctrl+C 停止服务\n")
 
     try:
