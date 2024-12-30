@@ -99,8 +99,7 @@ def start_frontend():
   os.chdir(frontend_dir)
 
   # 获取本机IP地址
-  hostname = socket.gethostname()
-  local_ip = socket.gethostbyname(hostname)
+  local_ip = get_local_ip()
 
   # 设置环境变量
   env = os.environ.copy()
@@ -140,14 +139,28 @@ def start_frontend():
   return frontend_process
 
 
+def get_local_ip():
+    """获取本地IP地址"""
+    try:
+        # 创建一个UDP socket
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        # 连接任意一个外部地址，这里使用8.8.8.8(Google DNS)
+        s.connect(("8.8.8.8", 80))
+        # 获取本地IP
+        local_ip = s.getsockname()[0]
+        s.close()
+        return local_ip
+    except Exception:
+        return "127.0.0.1"  # 如果获取失败，返回localhost
+
+
 def main():
   """主函数"""
   try:
     check_dependencies()
 
     # 获取本机IP地址
-    hostname = socket.gethostname()
-    local_ip = socket.gethostbyname(hostname)
+    local_ip = get_local_ip()
 
     # 启动服务
     backend_process = start_backend()

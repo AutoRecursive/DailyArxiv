@@ -23,34 +23,43 @@ class ArxivScraper:
 
     def fetch_daily_papers(self, days_back: int = 3) -> List[Paper]:
         """获取最近几天的论文"""
-        print(f"Fetching papers for the last {days_back} days...")  # 添加日志
+        print(f"Fetching papers for the last {days_back} days...")
         papers = []
         
         # 构建搜索查询
+        query = ' OR '.join(f'cat:{topic}' for topic in TOPICS_OF_INTEREST)
+        print(f"Search query: {query}")  # 添加查询日志
+        
         search = arxiv.Search(
-            query=' OR '.join(f'cat:{topic}' for topic in TOPICS_OF_INTEREST),
+            query=query,
             max_results=ARXIV_RESULTS_PER_PAGE,
             sort_by=arxiv.SortCriterion.SubmittedDate,
             sort_order=arxiv.SortOrder.Descending
         )
 
         try:
-            print("Querying arXiv API...")  # 添加日志
-            results = self.client.results(search)
+            print("Querying arXiv API...")
+            results = list(self.client.results(search))  # 转换为列表以便计数
+            print(f"Retrieved {len(results)} results from arXiv API")  # 添加结果数量日志
             
             # 获取日期范围
             today = datetime.now()
             earliest_date = today - timedelta(days=days_back)
+            print(f"Date range: {earliest_date.date()} to {today.date()}")  # 添加日期范围日志
             
             # 解析论文
             for result in results:
                 try:
+                    print(f"Processing paper ID: {result.get_short_id()}, "
+                          f"Published: {result.published.date()}")  # 添加处理日志
                     # 获取最近几天的论文
                     if result.published.date() >= earliest_date.date():
                         paper = self._parse_paper(result)
                         papers.append(paper)
-                        print(f"Found paper: {paper.title[:50]}...")  # 添加日志
+                        print(f"Added paper: {paper.title[:50]}... "
+                              f"[{paper.categories}]")  # 添加更详细的论文信息
                     else:
+                        print(f"Skipping older paper: {result.get_short_id()}")
                         break
                 except Exception as e:
                     print(f"Error parsing paper {result.get_short_id()}: {e}")
@@ -61,5 +70,5 @@ class ArxivScraper:
             import traceback
             traceback.print_exc()
         
-        print(f"Total papers found: {len(papers)}")  # 添加日志
+        print(f"Total papers found: {len(papers)}")
         return papers
