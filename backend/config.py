@@ -1,6 +1,6 @@
 # arXiv API 配置
 ARXIV_API_URL = "http://export.arxiv.org/api/query"
-ARXIV_RESULTS_PER_PAGE = 500
+ARXIV_RESULTS_PER_PAGE = 100
 
 # 数据库配置
 DATABASE_PATH = "papers.db"

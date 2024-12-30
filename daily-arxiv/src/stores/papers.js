@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import axios from 'axios';
 import { useReadStatusStore } from './readStatus';
 
-const API_BASE_URL = 'http://localhost:8001';
+const API_BASE_URL = 'http://localhost:8000';
 
 // 延迟函数
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));

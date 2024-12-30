@@ -21,14 +21,14 @@ class ArxivScraper:
             pdf_url=result.pdf_url
         )
 
-    def fetch_daily_papers(self, days_back: int = 3) -> List[Paper]:
+    def fetch_daily_papers(self, days_back: int = 7) -> List[Paper]:
         """获取最近几天的论文"""
         print(f"Fetching papers for the last {days_back} days...")
         papers = []
         
         # 构建搜索查询
         query = ' OR '.join(f'cat:{topic}' for topic in TOPICS_OF_INTEREST)
-        print(f"Search query: {query}")  # 添加查询日志
+        print(f"Search query: {query}")
         
         search = arxiv.Search(
             query=query,
@@ -39,28 +39,38 @@ class ArxivScraper:
 
         try:
             print("Querying arXiv API...")
-            results = list(self.client.results(search))  # 转换为列表以便计数
-            print(f"Retrieved {len(results)} results from arXiv API")  # 添加结果数量日志
+            results = list(self.client.results(search))
+            print(f"Retrieved {len(results)} results from arXiv API")
             
-            # 获取日期范围
-            today = datetime.now()
-            earliest_date = today - timedelta(days=days_back)
-            print(f"Date range: {earliest_date.date()} to {today.date()}")  # 添加日期范围日志
+            if not results:
+                print("No results found from arXiv API")
+                return papers
+                
+            # 使用最新论文的日期作为基准
+            latest_date = results[0].published.date()
+            earliest_date = latest_date - timedelta(days=days_back)
+            print(f"Latest paper date: {latest_date}")
+            print(f"Date range: {earliest_date} to {latest_date}")
             
             # 解析论文
+            skipped_count = 0
             for result in results:
                 try:
+                    pub_date = result.published.date()
                     print(f"Processing paper ID: {result.get_short_id()}, "
-                          f"Published: {result.published.date()}")  # 添加处理日志
-                    # 获取最近几天的论文
-                    if result.published.date() >= earliest_date.date():
+                          f"Published: {pub_date}")
+                    
+                    if pub_date >= earliest_date:
                         paper = self._parse_paper(result)
                         papers.append(paper)
                         print(f"Added paper: {paper.title[:50]}... "
-                              f"[{paper.categories}]")  # 添加更详细的论文信息
+                              f"[{paper.categories}]")
+                        skipped_count = 0  # 重置跳过计数
                     else:
-                        print(f"Skipping older paper: {result.get_short_id()}")
-                        break
+                        skipped_count += 1
+                        if skipped_count > 50:  # 如果连续跳过50篇论文，则退出
+                            print("Too many old papers, stopping...")
+                            break
                 except Exception as e:
                     print(f"Error parsing paper {result.get_short_id()}: {e}")
                     continue
@@ -70,5 +80,5 @@ class ArxivScraper:
             import traceback
             traceback.print_exc()
         
-        print(f"Total papers found: {len(papers)}")
+        print(f"\nTotal papers found: {len(papers)}")
         return papers
